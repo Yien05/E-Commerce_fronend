@@ -1,22 +1,57 @@
-import * as React from "react";
-import AppBar from "@mui/material/AppBar";
-import Box from "@mui/material/Box";
-import CssBaseline from "@mui/material/CssBaseline";
+import { Typography, Box, Button } from "@mui/material";
+import { useNavigate, useLocation } from "react-router-dom";
 
-function Header(props) {
+function Header({ title }) {
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const isActive = (path) => location.pathname === path;
+
   return (
-    <Box sx={{ display: "flex" }}>
-      <CssBaseline />
-      <AppBar position="relative" component="nav" color="white">
-        <h1
-          style={{
-            display: "flex",
-            justifyContent: "center",
-          }}
+    <Box
+      sx={{
+        padding: "40px 0 30px 0",
+        marginBottom: "30px",
+        borderBottom: "1px solid #000",
+      }}
+    >
+      <Typography
+        variant="h1"
+        align="center"
+        sx={{
+          fontSize: "36px",
+          fontWeight: "bold",
+        }}
+      >
+        {title}
+      </Typography>
+      <Box
+        sx={{
+          marginTop: "20px",
+          display: "flex",
+          justifyContent: "center",
+          gap: "20px",
+        }}
+      >
+        <Button
+          variant={isActive("/") ? "contained" : "outlined"} // Active style
+          color="primary"
+          size="large"
+          sx={{ textTransform: "none" }}
+          onClick={() => navigate("/")}
         >
-          Welcome to My Store
-        </h1>
-      </AppBar>
+          Home
+        </Button>
+        <Button
+          variant={isActive("/products/cart") ? "contained" : "outlined"} // Active style
+          color="primary"
+          size="large"
+          sx={{ textTransform: "none" }}
+          onClick={() => navigate("/products/cart")}
+        >
+          Cart
+        </Button>
+      </Box>
     </Box>
   );
 }
