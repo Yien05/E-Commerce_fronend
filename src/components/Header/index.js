@@ -1,11 +1,9 @@
 import { Typography, Box, Button } from "@mui/material";
-import { useNavigate, useLocation } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 
-function Header({ title }) {
-  const navigate = useNavigate();
+function Header(props) {
+  const { title = "Welcome To My Store" } = props;
   const location = useLocation();
-
-  const isActive = (path) => location.pathname === path;
 
   return (
     <Box
@@ -25,31 +23,41 @@ function Header({ title }) {
       >
         {title}
       </Typography>
-      <Box
-        sx={{
-          marginTop: "20px",
-          display: "flex",
-          justifyContent: "center",
-          gap: "20px",
-        }}
-      >
+      <Box display="flex" justifyContent="center" gap={2} sx={{ marginTop: 1 }}>
         <Button
-          variant={isActive("/") ? "contained" : "outlined"} // Active style
+          variant={location.pathname === "/" ? "contained" : "outlined"}
           color="primary"
-          size="large"
-          sx={{ textTransform: "none" }}
-          onClick={() => navigate("/")}
+          LinkComponent={Link}
+          to="/"
+          sx={{
+            padding: "10px 20px",
+          }}
         >
           Home
         </Button>
+
         <Button
-          variant={isActive("/products/cart") ? "contained" : "outlined"} // Active style
+          variant={location.pathname === "/cart" ? "contained" : "outlined"}
           color="primary"
-          size="large"
-          sx={{ textTransform: "none" }}
-          onClick={() => navigate("/products/cart")}
+          LinkComponent={Link}
+          to="/cart"
+          sx={{
+            padding: "10px 20px",
+          }}
         >
           Cart
+        </Button>
+
+        <Button
+          variant={location.pathname === "/orders" ? "contained" : "outlined"}
+          color="primary"
+          LinkComponent={Link}
+          to="/orders"
+          sx={{
+            padding: "10px 20px",
+          }}
+        >
+          My Orders
         </Button>
       </Box>
     </Box>

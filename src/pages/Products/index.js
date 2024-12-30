@@ -13,6 +13,7 @@ import { toast } from "sonner";
 import { getProducts } from "../../utils/api_products";
 import { getCategories } from "../../utils/api_categories";
 import { deleteProduct } from "../../utils/api_products";
+import { AddToCart } from "../../utils/api_cart";
 
 function Products() {
   const navigate = useNavigate();
@@ -20,12 +21,6 @@ function Products() {
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [category, setCategory] = useState("all");
-
-  const [cart, setCart] = useState(() => {
-    // Load cart from localStorage or initialize as empty
-    const savedCart = JSON.parse(localStorage.getItem("cart"));
-    return savedCart || [];
-  });
 
   useEffect(() => {
     getProducts(category, page).then((data) => {
@@ -39,6 +34,12 @@ function Products() {
     });
   }, []);
 
+  const handleAddToCart = (product) => {
+    // trigger add to cart function
+    AddToCart(product);
+    toast.success(`${product.name} has been added to Cart`);
+  };
+
   const handleDelete = async (id) => {
     const confirmed = window.confirm(
       "Are you sure you want to delete this product?"
@@ -51,39 +52,16 @@ function Products() {
         // update the products state with the latest data
         setProducts(latestProducts);
         // show success message
-        toast.success();
+        toast.success("Product deleted successfully");
       } else {
         toast.error("Failed to delete product");
       }
     }
   };
 
-  const handleAddToCart = (product) => {
-    const existingItem = cart.find((item) => item._id === product._id);
-    if (existingItem) {
-      // If item is already in the cart, increase the quantity
-      const updatedCart = cart.map((item) =>
-        item._id === product._id
-          ? { ...item, quantity: item.quantity + 1 }
-          : item
-      );
-      setCart(updatedCart);
-      localStorage.setItem("cart", JSON.stringify(updatedCart));
-      toast.success("Increased quantity in cart");
-    } else {
-      // If item is not in the cart, add it
-      const newItem = { ...product, quantity: 1 };
-      const updatedCart = [...cart, newItem];
-      setCart(updatedCart);
-      localStorage.setItem("cart", JSON.stringify(updatedCart));
-      toast.success("Product added to cart");
-    }
-  };
-
   return (
     <Container>
-      <Header title="Welcome To My Store" />
-
+      <Header />
       <Box
         display={"flex"}
         justifyContent={"space-between"}
@@ -128,7 +106,10 @@ function Products() {
         {products.length > 0 ? (
           products.map((product) => (
             <Grid key={product._id} size={{ xs: 12, sm: 12, md: 6, lg: 4 }}>
-              <Card variant="outlined" sx={{ borderRadius: "8px", boxShadow: 3 }}>
+              <Card
+                variant="outlined"
+                sx={{ borderRadius: "8px", boxShadow: 3 }}
+              >
                 <CardContent>
                   <Typography variant="h6">{product.name}</Typography>
                   <Box
@@ -159,12 +140,14 @@ function Products() {
                   <Button
                     variant="contained"
                     fullWidth
-                    onClick={() => handleAddToCart(product)}
                     sx={{
                       marginBottom: "10px",
                       backgroundColor: "#1976d2",
                       textTransform: "none",
                       "&:hover": { backgroundColor: "#115293" },
+                    }}
+                    onClick={() => {
+                      handleAddToCart(product);
                     }}
                   >
                     Add to Cart
