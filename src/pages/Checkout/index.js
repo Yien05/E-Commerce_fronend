@@ -9,18 +9,15 @@ import {
 import Grid from "@mui/material/Grid2";
 import Backdrop from "@mui/material/Backdrop";
 import CircularProgress from "@mui/material/CircularProgress";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useParams } from "react-router-dom";
-import Card from "@mui/material/Card";
-import CardContent from "@mui/material/CardContent";
 import Header from "../../components/Header";
 import TableBody from "@mui/material/TableBody";
 import TableCell from "@mui/material/TableCell";
 import TableRow from "@mui/material/TableRow";
-import TableHead from "@mui/material/TableHead";
-import { getCart, getTotalCartPrice } from "../../utils/api_cart";
 import Table from "@mui/material/Table";
+import { getCart, getTotalCartPrice } from "../../utils/api_cart";
 import { toast } from "sonner";
 import { validateEmail } from "../../utils/email";
 import { createOrder } from "../../utils/api_orders";
@@ -142,4 +139,3 @@ function Checkout() {
 }
 
 export default Checkout;
-  

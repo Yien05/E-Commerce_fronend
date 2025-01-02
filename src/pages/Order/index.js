@@ -1,108 +1,124 @@
 import { useState, useEffect } from "react";
-import { Container, Button } from "@mui/material";
-import Table from "@mui/material/Table";
-import TableBody from "@mui/material/TableBody";
-import TableCell from "@mui/material/TableCell";
-import TableContainer from "@mui/material/TableContainer";
-import TableHead from "@mui/material/TableHead";
-import TableRow from "@mui/material/TableRow";
-import Paper from "@mui/material/Paper";
+import {
+  Container,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  Button,
+  Select,
+  MenuItem,
+  FormControl,
+} from "@mui/material";
 import Header from "../../components/Header";
-import Select from "@mui/material/Select";
-import MenuItem from "@mui/material/MenuItem";
-
-import { getOrders, deleteOrder, editOrder } from "../../utils/api_orders";
+import { toast } from "sonner";
+import { getOrders, updateOrder, deleteOrder } from "../../utils/api_orders";
 
 function Orders() {
   const [orders, setOrders] = useState([]);
 
   useEffect(() => {
     getOrders().then((data) => {
-      console.log(data);
       setOrders(data);
     });
   }, []);
+
+  const handleStatusUpdate = async (_id, status) => {
+    const updatedOrder = await updateOrder(_id, status);
+    if (updatedOrder) {
+      // fetch the updated orders from API
+      const updatedOrders = await getOrders();
+      setOrders(updatedOrders);
+      toast.success("Order status has been updated");
+    }
+  };
+
+  const handleOrderDelete = async (_id) => {
+    const response = await deleteOrder(_id);
+    if (response && response.status === "success") {
+      // fetch the updated orders from API
+      const updatedOrders = await getOrders();
+      setOrders(updatedOrders);
+      toast.success("Order has been deleted");
+    }
+  };
 
   return (
     <Container>
       <Header title="My Orders" />
       <TableContainer component={Paper}>
-        <Table sx={{ minWidth: 650 }} aria-label="simple table">
+        <Table sx={{ minWidth: 650 }} aria-label="orders table">
           <TableHead>
             <TableRow>
-              <TableCell>Customer</TableCell>
-              <TableCell align="right">Products</TableCell>
-              <TableCell align="right">Total Amount</TableCell>
-              <TableCell align="right">Status</TableCell>
-              <TableCell align="right">Payment Date</TableCell>
-              <TableCell align="right">Actions</TableCell>
+              <TableCell>Customer Info</TableCell>
+              <TableCell>Products</TableCell>
+              <TableCell>Total Price</TableCell>
+              <TableCell>Status</TableCell>
+              <TableCell>Payment Date</TableCell>
+              <TableCell>Actions</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {orders.length > 0 ? (
-              orders.map((item) => (
-                <TableRow>
-                  <TableCell component="th" scope="row">
-                    <div>{item.customerName}</div>({item.customerEmail})
+              orders.map((order) => (
+                <TableRow key={order._id}>
+                  <TableCell>
+                    <strong>{order.customerName}</strong>
+                    <br />
+                    <small>{order.customerEmail}</small>
                   </TableCell>
-                  <TableCell align="right">
-                    {item.products.map((product) => (
-                      <div> {product.name}</div>
+                  <TableCell>
+                    {order.products.map((product) => (
+                      <div key={product._id}>{product.name}</div>
                     ))}
                   </TableCell>
-                  <TableCell align="right">{item.totalPrice}</TableCell>
-
-                  <TableCell align="right">
-                    <Select
-                      value={item.status}
-                      onChange={(e) => {
-                        const newStatus = e.target.value;
-                        editOrder(item._id, newStatus).then(() => {
-                          setOrders((prevOrders) =>
-                            prevOrders.map((order) =>
-                              order._id === item._id
-                                ? { ...order, status: newStatus }
-                                : order
-                            )
-                          );
-                        });
-                      }}
-                    >
-                      <MenuItem value="pending">Pending</MenuItem>
-                      <MenuItem value="failed">Failed</MenuItem>
-                      <MenuItem value="paid">Paid</MenuItem>
-                      <MenuItem value="completed">Completed</MenuItem>
-                    </Select>
+                  <TableCell>${order.totalPrice.toFixed(2)}</TableCell>
+                  <TableCell>
+                    <FormControl fullWidth>
+                      {order.status === "pending" ? (
+                        <Select value={order.status} disabled={true}>
+                          <MenuItem value="pending">Pending</MenuItem>
+                        </Select>
+                      ) : (
+                        <Select
+                          value={order.status}
+                          onChange={(event) => {
+                            handleStatusUpdate(order._id, event.target.value);
+                          }}
+                        >
+                          <MenuItem value="paid">Paid</MenuItem>
+                          <MenuItem value="failed">Failed</MenuItem>
+                          <MenuItem value="completed">Completed</MenuItem>
+                        </Select>
+                      )}
+                    </FormControl>
                   </TableCell>
-
-                  <TableCell align="right">{item.paid_at}</TableCell>
-                  <TableCell align="right">
-                    {item.status === "pending" && (
+                  <TableCell>
+                    {order.paid_at ? order.paid_at : "Not Paid"}
+                  </TableCell>
+                  <TableCell>
+                    {order.status === "pending" ? (
                       <Button
                         variant="contained"
                         color="error"
-                        size="small"
-                        sx={{ textTransform: "none" }}
+                        disabled={order.status !== "pending"}
                         onClick={() => {
-                          deleteOrder(item._id).then(() => {
-                            setOrders((prevOrders) =>
-                              prevOrders.filter(
-                                (order) => order._id !== item._id
-                              )
-                            );
-                          });
+                          handleOrderDelete(order._id);
                         }}
                       >
                         Delete
                       </Button>
-                    )}
+                    ) : null}
                   </TableCell>
                 </TableRow>
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={5} align="center">
-                  No Products Added Yet!
+                <TableCell colSpan={6} align="center">
+                  No orders found!
                 </TableCell>
               </TableRow>
             )}
