@@ -1,33 +1,28 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { Container, Typography, Box, TextField, Button } from "@mui/material";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
 import Header from "../../components/Header";
 import { toast } from "sonner";
-import { login } from "../../utils/api_auth";
-import { useCookies } from "react-cookie";
+import { signup } from "../../utils/api_auth";
 
-function Login() {
-  const navigate = useNavigate();
-  const [cookies, setCookie] = useCookies(["currentUser"]);
+function SignUp() {
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
 
   const handleFormSubmit = async () => {
     // check for error
-    if (!email || !password) {
+    if (!name || !email || !password || !confirmPassword) {
       toast.error("Please fill up all the fields");
+    } else if (password !== confirmPassword) {
+      toast.error("Your password does not match");
     } else {
       // trigger the API
-      const userData = await login(email, password);
-      // set cookies
-      setCookie("currentUser", userData, {
-        maxAge: 60 * 60 * 24 * 30, // second * minutes * hours * days
-      });
-      // redirect user back to home
-      navigate("/");
-      toast.success("You have successfully login. Happy shopping!");
+      const userData = await signup(name, email, password);
+      console.log(userData);
+      
     }
   };
 
@@ -38,8 +33,17 @@ function Login() {
         <Card elevation={5}>
           <CardContent>
             <Typography variant="h4" align="center" mb={4}>
-              Login
+              Sign Up
             </Typography>
+            <Box mb={2}>
+              <TextField
+                label="Name"
+                required
+                fullWidth
+                value={name}
+                onChange={(event) => setName(event.target.value)}
+              />
+            </Box>
             <Box mb={2}>
               <TextField
                 label="Email"
@@ -60,6 +64,16 @@ function Login() {
                 onChange={(event) => setPassword(event.target.value)}
               />
             </Box>
+            <Box mb={2}>
+              <TextField
+                label="Confirm Password"
+                type="password"
+                required
+                fullWidth
+                value={confirmPassword}
+                onChange={(event) => setConfirmPassword(event.target.value)}
+              />
+            </Box>
             <Button
               variant="contained"
               color="primary"
@@ -75,4 +89,4 @@ function Login() {
   );
 }
 
-export default Login;
+export default SignUp;

@@ -12,6 +12,7 @@
     "cra-template": "1.2.0",
     "react": "^19.0.0",
     "react-bootstrap": "^2.10.7",
+    "react-cookie": "^7.2.2",
     "react-dom": "^19.0.0",
     "react-router-dom": "^6.28.0",
     "react-scripts": "5.0.1",

@@ -6,13 +6,20 @@ import { useNavigate } from "react-router-dom";
 import { useParams } from "react-router-dom";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
+import { InputLabel, MenuItem, FormControl, Select } from "@mui/material";
 import Header from "../../components/Header";
 import { toast } from "sonner";
 import { editProduct, getProduct } from "../../utils/api_products";
+import { getUserToken } from "../../utils/api_auth";
+import { getCategories } from "../../utils/api_categories";
+import { useCookies } from "react-cookie";
 
 function ProductEdit() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const [cookies] = useCookies(["currentUser"]);
+  const token = getUserToken(cookies);
+  const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
@@ -29,6 +36,12 @@ function ProductEdit() {
     });
   }, [id]);
 
+  useEffect(() => {
+    getCategories().then((data) => {
+      setCategories(data);
+    });
+  }, []);
+
   const handleFormSubmit = async (event) => {
     event.preventDefault();
     // check for error
@@ -41,7 +54,8 @@ function ProductEdit() {
         name,
         description,
         price,
-        category
+        category,
+        token
       );
 
       if (updatedProduct) {
@@ -88,13 +102,28 @@ function ProductEdit() {
               />
             </Box>
             <Box mb={2}>
-              <TextField
-                label="Category"
-                required
-                fullWidth
-                value={category}
-                onChange={(event) => setCategory(event.target.value)}
-              />
+              <FormControl sx={{ minWidth: "100%" }}>
+                <InputLabel id="demo-simple-select-label">Category</InputLabel>
+                <Select
+                  labelId="demo-simple-select-label"
+                  id="demo-simple-select"
+                  value={category}
+                  label="category"
+                  onChange={(event) => {
+                    console.log(event.target.value);
+                    setCategory(event.target.value);
+                  }}
+                  sx={{
+                    width: "100%",
+                  }}
+                >
+                  {categories.map((category) => {
+                    return (
+                      <MenuItem value={category._id}>{category.name}</MenuItem>
+                    );
+                  })}
+                </Select>
+              </FormControl>
             </Box>
             <Button
               variant="contained"
