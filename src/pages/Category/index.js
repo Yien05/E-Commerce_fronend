@@ -93,7 +93,7 @@ function Categories() {
       <TableContainer component={Paper}>
         <Table>
           <TableCell>
-            <Box mb={2} display="flex" alignItem="center">
+            <Box mb={2} display="flex">
               <TextField
                 label="Category Name"
                 fullWidth
