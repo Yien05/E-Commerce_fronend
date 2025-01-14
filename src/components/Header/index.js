@@ -25,6 +25,7 @@ function Header(props) {
         padding: "40px 0 30px 0",
         marginBottom: "30px",
         borderBottom: "1px solid #000",
+    
       }}
     >
       <Typography
@@ -37,7 +38,8 @@ function Header(props) {
       >
         {title}
       </Typography>
-      <Box display="flex" justifyContent="start" gap={2} sx={{ marginTop: 1 }}>
+      <Box display="flex">
+      <Box display="flex" gap={2} sx={{ marginTop: 1 }}>
         <Button
           variant={location.pathname === "/" ? "contained" : "outlined"}
           color="primary"
@@ -85,8 +87,8 @@ function Header(props) {
           Categories
         </Button>
       </Box>
-      <Box display="flex" justifyContent="end" gap={2} sx={{ marginTop: 1 }}>
-        <Box>
+      <Box display={"flex"} marginLeft={"auto"} gap={2} sx={{ marginTop: 1 }}>
+        <Box >
           Current User:{cookies.currentUser.name} 
           
           {isUserLoggedIn(cookies) ? (
@@ -133,7 +135,7 @@ function Header(props) {
         )}
 
         </Box>
-
+        </Box>
         
       </Box>
     </Box>
