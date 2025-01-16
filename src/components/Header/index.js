@@ -1,4 +1,4 @@
-import { Typography, Box, Button, TableCell } from "@mui/material";
+import { Typography, Box, Button } from "@mui/material";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useCookies } from "react-cookie";
 import { isUserLoggedIn } from "../../utils/api_auth";
@@ -76,11 +76,11 @@ function Header(props) {
           </Button>
           <Button
             variant={
-              location.pathname === "/category" ? "contained" : "outlined"
+              location.pathname === "/categories" ? "contained" : "outlined"
             }
             color="primary"
             LinkComponent={Link}
-            to="/category"
+            to="/categories"
             sx={{
               padding: "10px 20px",
             }}

@@ -1,98 +1,101 @@
-import { Container, Typography, TextField, Box, Button } from "@mui/material";
-import Backdrop from "@mui/material/Backdrop";
-import CircularProgress from "@mui/material/CircularProgress";
+import Header from "../../components/Header";
+import { getUserToken, isAdmin } from "../../utils/api_auth";
+import { useCookies } from "react-cookie";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useParams } from "react-router-dom";
+import { toast } from "sonner";
+import { editCategory, getCategory } from "../../utils/api_categories";
+
+import { Container, Typography, Box, TextField, Button } from "@mui/material";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
-import Header from "../../components/Header";
-import { toast } from "sonner";
-import { editCategory,getCategories, getCategory } from "../../utils/api_categories";
-import { getUserToken } from "../../utils/api_auth";
-import { useCookies } from "react-cookie";
+import CircularProgress from "@mui/material/CircularProgress";
 
 function CategoryEdit() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [cookies] = useCookies(["currentUser"]);
   const token = getUserToken(cookies);
-  const [categories, setCategories] = useState([]);
+
+  //states
   const [loading, setLoading] = useState(true);
+  const [category, setCategory] = useState("");
   const [name, setName] = useState("");
-  // const [category, setCategory] = useState("");
 
   useEffect(() => {
-    getCategory(id).then((categoryData) => {
+    if (!isAdmin(cookies)) {
+      navigate("/login");
+    }
+  }, [cookies, navigate]);
+
+  useEffect(() => {
+    getCategory(id).then((data) => {
       setLoading(false);
-      setName(categoryData.name);
+      setCategory(data.category);
+      setName(data.name);
+      console.log(data);
     });
   }, [id]);
 
-  useEffect(() => {
-    getCategories().then((data) => {
-      setCategories(data);
-    });
-  }, []);
-
-  const handleFormSubmit = async (event) => {
+  //update category handler
+  const handleUpdate = async (event) => {
     event.preventDefault();
-    // check for error
+
     if (!name) {
-      toast.error("Please fill out all the required fields");
+      toast.error("put something la");
     } else {
       // trigger the API
-      const updatedCategory = await editCategory(
-        id,
-        name,
-        token
-      );
+      const updatedCategory = await editCategory(id, name, token);
 
       if (updatedCategory) {
-        toast.success("Category has been edited successfully!");
-        navigate("/category");
+        toast.success("category has been edited");
+        navigate("/categories");
       }
     }
   };
 
   return (
     <>
+      <Header />
       <Container>
-        <Header />
         <Card>
           <CardContent>
             <Typography variant="h4" align="center" mb={4}>
               Edit Category
             </Typography>
-            <Box mb={2}>
-              <TextField
-                label="Name"
-                required
-                fullWidth
-                value={name}
-                onChange={(event) => setName(event.target.value)}
-              />
-            </Box>
-            <Button
-              variant="contained"
-              color="primary"
-              fullWidth
-              onClick={handleFormSubmit}
-            >
-              Update
-            </Button>
+            {loading ? (
+              <Box
+                display={"flex"}
+                justifyContent={"center"}
+                alignItems={"center"}
+              >
+                <CircularProgress color="inherit" />
+              </Box>
+            ) : (
+              <>
+                <Box mb={2}>
+                  <TextField
+                    label="Name"
+                    required
+                    fullWidth
+                    value={name}
+                    onChange={(event) => setName(event.target.value)}
+                  />
+                </Box>
+                <Button
+                  variant="contained"
+                  color="primary"
+                  fullWidth
+                  onClick={handleUpdate}
+                >
+                  Update
+                </Button>
+              </>
+            )}
           </CardContent>
         </Card>
       </Container>
-      <Backdrop
-        sx={(theme) => ({ color: "#fff", zIndex: theme.zIndex.drawer + 1 })}
-        open={loading}
-      >
-        <CircularProgress color="inherit" />
-        <Typography variant="h6" ml={2}>
-          Loading...
-        </Typography>
-      </Backdrop>
     </>
   );
 }

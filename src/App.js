@@ -11,7 +11,7 @@ import PaymentVerify from "./pages/PaymentVerify";
 import Orders from "./pages/Orders";
 import Login from "./pages/Login";
 import SignUp from "./pages/SignUp";
-import Category from "./pages/Category";
+import Categories from "./pages/Categories";
 import CategoryEdit from "./pages/CategoryEdit";
 
 function App() {
@@ -30,8 +30,8 @@ function App() {
             <Route path="/orders" element={<Orders />} />
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<SignUp />} />
-            <Route path="/category" element={<Category />} />
-            <Route path="/category/:id/edit" element={<CategoryEdit />} />
+            <Route path="/categories" element={<Categories />} />
+            <Route path="/categories/:id" element={<CategoryEdit />} />
           </Routes>
         </BrowserRouter>
         <Toaster richColors position="top-right" />

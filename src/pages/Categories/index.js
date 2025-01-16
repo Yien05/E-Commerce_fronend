@@ -13,73 +13,70 @@ import {
   TableCell,
   Paper,
 } from "@mui/material";
-
-import { getCategories } from "../../utils/api_categories";
-import { addNewCategory } from "../../utils/api_categories";
-import { deleteCategory } from "../../utils/api_categories";
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { getUserToken, isAdmin } from "../../utils/api_auth";
 import { useCookies } from "react-cookie";
 import { Link, useNavigate } from "react-router-dom";
-import { useParams } from "react-router-dom";
+import {
+  getCategories,
+  addNewCategory,
+  deleteCategory,
+} from "../../utils/api_categories";
 
 function Categories() {
-  const { id } = useParams();
   const [categories, setCategories] = useState([]);
   const [name, setName] = useState("");
   const navigate = useNavigate();
   const [cookies] = useCookies(["currentUser"]);
   const token = getUserToken(cookies);
 
+  // get categories
   useEffect(() => {
     getCategories().then((data) => {
       setCategories(data);
     });
   }, []);
 
-  // check if is admin or not
+  // if is not admin, redirect to home page
   useEffect(() => {
     if (!isAdmin(cookies)) {
-      navigate("/login");
+      navigate("/");
     }
   }, [cookies, navigate]);
 
-  const handleFormSubmit = async (event) => {
-    event.preventDefault();
-    // check for error
+  const handleFormSubmit = async () => {
+    //check for error
     if (!name) {
-      toast.error("Please fill out the required fields");
+      toast.error("Please fill out all the required fields");
     }
 
-    // trigger the add new Category API
-    const newCategoryData = await addNewCategory(name, token);
+    //trigger the add new category API
+    const newCategory = await addNewCategory(name, token);
 
-    // check if the newCategoryData exists or not
-    if (newCategoryData) {
-
-      // show success message
-      toast.success("Category has been added successfully");
-      setCategories(await getCategories(token));
+    // check if the newCategory exist or not
+    if (newCategory) {
+      const newData = await getCategories();
+      setCategories(newData);
+      // clear the input field
       setName("");
+      // show success error
+      toast.success("Category has been added successfully");
     }
   };
 
-  const handleDelete = async (id) => {
+  const handleDelete = async (_id) => {
     const confirmed = window.confirm(
       "Are you sure you want to delete this category?"
     );
     if (confirmed) {
-      const deleted = await deleteCategory(id, token);
+      const deleted = await deleteCategory(_id, token);
       if (deleted) {
-        // get the latest Categorys data from the API again
-        const latestCategorys = await getCategories();
-        // update the Categorys state with the latest data
-        setCategories(latestCategorys);
-        // show success message
+        const latestCategories = await getCategories();
+        setCategories(latestCategories);
         toast.success("Category deleted successfully");
       } else {
-        toast.error("Failed to delete Category");
+        toast.error("Failed to delete category");
       }
     }
   };
@@ -103,7 +100,10 @@ function Categories() {
               <Button
                 variant="contained"
                 color="primary"
-                onClick={handleFormSubmit}
+                // v1
+                // onClick={handleFormSubmit}
+                // v2
+                onClick={() => handleFormSubmit()}
               >
                 ADD
               </Button>
@@ -121,7 +121,7 @@ function Categories() {
 
           <TableBody>
             {categories.map((category) => (
-              <TableRow >
+              <TableRow>
                 <TableCell>{category.name}</TableCell>
                 <TableCell align="right">
                   <Button
@@ -129,7 +129,7 @@ function Categories() {
                     LinkComponent={Link}
                     color="primary"
                     size="small"
-                    to={`/category/${category._id}/edit`}
+                    to={`/categories/${category._id}`}
                   >
                     EDIT
                   </Button>{" "}
